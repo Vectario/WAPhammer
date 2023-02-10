@@ -1,0 +1,36 @@
+{
+  "name": "Skeleton Warrior",
+  "unit_strength": 10,
+  "stats": {
+    "ws": 2,
+    "bs": 0,
+    "s": 3,
+    "t": 3,
+    "w": 1,
+    "i": 2,
+    "a": 1,
+    "ld": 5,
+    "save": 7,
+    "ward": 7
+  },
+  "weapon": [
+    "Hand weapon",
+    "Spear"
+  ],
+  "rules": [
+    "Animated_Construct",
+    "Fear",
+    "Unstable"
+  ],
+  "troop_type": "Infantry",
+  "wargear": [
+    "Shield",
+    "Light armor"
+  ],
+  "character": false,
+  "command": {
+    "banner": true,
+    "musician": true,
+    "champion": true
+  }
+}

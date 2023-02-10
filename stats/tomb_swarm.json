@@ -1,0 +1,33 @@
+{
+  "name": "Tomb Swarm",
+  "unit_strength": 2,
+  "stats": {
+    "ws": 1,
+    "bs": 0,
+    "s": 1,
+    "t": 1,
+    "w": 8,
+    "i": 1,
+    "a": 8,
+    "ld": 2,
+    "save": 7,
+    "ward": 7
+  },
+  "weapon": [
+    "Hand weapon"
+  ],
+  "rules": [
+    "AnimatedConstruct",
+    "Poison",
+    "Fear",
+    "Unstable"
+  ],
+  "troop_type": "Swarm",
+  "wargear": [],
+  "character": false,
+  "command": {
+    "banner": false,
+    "musician": false,
+    "champion": false
+  }
+}

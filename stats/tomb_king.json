@@ -1,0 +1,42 @@
+{
+  "name": "Tomb King",
+  "unit_strength": 1,
+  "stats": {
+    "ws": 6,
+    "bs": 3,
+    "s": 5,
+    "t": 5,
+    "w": 4,
+    "i": 3,
+    "a": 4,
+    "ld": 10,
+    "save": 6,
+    "ward": 7
+  },
+  "troop_type": "Infantry",
+  "character": true,
+  "command": {
+    "banner": false,
+    "musician": false,
+    "champion": false
+  },
+  "weapon": [
+    "Hand weapon",
+    "Polearm",
+    "Two hand weapons",
+    "Spear",
+    "Great weapon",
+    "Flail"
+  ],
+  "rules": [
+    "TheCurse",
+    "Flammable",
+    "Animated_Construct",
+    "Fear",
+    "Unstable"
+  ],
+  "wargear": [
+    "Shield",
+    "Sphinx"
+  ]
+}
