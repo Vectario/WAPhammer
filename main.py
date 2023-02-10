@@ -44,10 +44,14 @@ second = blocks[input()]
 if first == second:
     second = deepcopy(first)
 print("Options for the first fighter:")
+if not first.character:
+    print('Enter the unit size of the first unit')
+    first.unit_strength = int(input())*first.unit_strength
 if len(first.weapon)>1:
     print(f"Choose weapons from the following: {first.weapon}")
     first.weapon = first.weapon[int(input())]
-
+if first.wargear:
+    print("Pick the wargear for ")
 stats = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
 # print(f'Name: {first.name}', f'Unit strength: {first.unit_strength}', f'Stats: {first.stats}',
 #       f'Troop type: {first.troop_type}', f'Character: {first.character}', f'Command: {first.command}',

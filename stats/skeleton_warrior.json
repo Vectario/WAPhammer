@@ -1,6 +1,6 @@
 {
   "name": "Skeleton Warrior",
-  "unit_strength": 10,
+  "unit_strength": 1,
   "stats": {
     "ws": 2,
     "bs": 0,
@@ -23,8 +23,8 @@
     "Unstable"
   ],
   "troop_type": "Infantry",
+  "equipped": ["Shield"],
   "wargear": [
-    "Shield",
     "Light armor"
   ],
   "character": false,
