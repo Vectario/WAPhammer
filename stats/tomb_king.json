@@ -22,7 +22,7 @@
     "Flail"
   ],
   "rules": [
-    "TheCurse",
+    "The Curse",
     "Flammable",
     "Animated_Construct",
     "Fear",
@@ -31,8 +31,7 @@
   "troop_type": "Infantry",
   "equipped": [],
   "wargear": [
-    "Shield",
-    "Sphinx"
+    "Shield"
   ],
   "character": true,
   "command": {

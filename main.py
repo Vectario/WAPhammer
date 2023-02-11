@@ -51,7 +51,26 @@ if len(first.weapon)>1:
     print(f"Choose weapons from the following: {first.weapon}")
     first.weapon = first.weapon[int(input())]
 if first.wargear:
-    print("Pick the wargear for ")
+    print(f"Pick the wargear for first combatant: {first.wargear}")
+    tmp = input().split()
+    for i in range(len(first.wargear)):
+        if tmp[i]:
+            first.equipped.append(first.wargear[i])
+print("Options for the second fighter:")
+if not second.character:
+    print('Enter the unit size of the second unit')
+    second.unit_strength = int(input())*second.unit_strength
+if len(second.weapon)>1:
+    print(f"Choose weapons from the following: {second.weapon}")
+    second.weapon = second.weapon[int(input())]
+if second.wargear:
+    print(f"Pick the wargear for second combatant: {second.wargear}")
+    tmp = input().split()
+    for i in range(len(second.wargear)):
+        if tmp[i]:
+            second.equipped.append(second.wargear[i])
+GearCheck(first)
+GearCheck(second)
 stats = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
 # print(f'Name: {first.name}', f'Unit strength: {first.unit_strength}', f'Stats: {first.stats}',
 #       f'Troop type: {first.troop_type}', f'Character: {first.character}', f'Command: {first.command}',

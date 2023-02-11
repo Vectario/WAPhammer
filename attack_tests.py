@@ -1,5 +1,8 @@
 import random
 
+type_strength = {'Infantry': 1, 'Chariots': 3}
+models_per_rank = {'Infantry': 5, 'Swarm': 5, 'Chariot': 3}
+
 
 def roll():
     k = random.randint(1, 6)
@@ -32,18 +35,39 @@ def chance_to_wound(s, t):
         return 2
 
 
-def model_attack(ws_attacker, ws_defender, s_attacker, t_defender, save, ward, rules_attacker, rules_defender):
-    if roll() < chance_to_hit(ws_attacker, ws_defender):
+def model_attack(attacker, defender, first_round, charger):
+    tmp_ward = 0
+    if 'Great weapon' in attacker.rules and first_round:
+        tmp_s = 1
+    elif 'Spears mounted' in attacker.rules and first_round and charger:
+        tmp_s = 2
+    elif 'Spears on foot' in attacker.rules and first_round and not charger and defender.troop_type in ['Warbeast',
+                                                                                                        'Cavalry',
+                                                                                                        'Monstrous infantry',
+                                                                                                        'Monster',
+                                                                                                        'Chariot']:
+        tmp_s = 1
+    elif 'Pikes' in attacker.rules and first_round and not charger and defender.troop_type in ['Warbeast', 'Cavalry',
+                                                                                               'Monstrous infantry',
+                                                                                               'Monster', 'Chariot']:
+        tmp_s = 1
+    elif 'Lance' in attacker.rules and first_round and charger:
+        tmp_s = 2
+    else:
+        tmp_s = 0
+    if roll() < chance_to_hit(attacker.stats.ws, defender.stats.ws):
         return 0, 0
     roll_to_wound = roll()
-    if 'Poison' in rules_attacker and ('AnimatedConstruct' not in rules_defender
-                                       and 'ImmunePoison' not in rules_defender):
+    if 'Poison' in attacker.rules and ('AnimatedConstruct' not in defender.rules
+                                       and 'ImmunePoison' not in defender.rules):
         roll_to_wound += 1
-    if roll_to_wound < chance_to_wound(s_attacker, t_defender):
+    if roll_to_wound < chance_to_wound(attacker.stats.s + tmp_s, defender.stats.t):
         return 0, 1
-    if roll() >= save + s_attacker - 3:
+    if roll() >= defender.stats.save + attacker.stats.s + tmp_s - 3:
         return 0, 2
-    if ward and roll() >= ward:
+    if 'Parry 6' in defender.rules:
+        tmp_ward = 1
+    if defender.stats.ward - tmp_ward <= 6 and roll() >= defender.stats.ward - tmp_ward:
         return 0, 3
     return 1, 1
     # if roll >= chance_to_hit(ws_attacker, ws_defender):
@@ -82,19 +106,12 @@ def crumbles(unit, score, hp):
         hp = unit.stats.w
     else:
         hp -= score
-    # while hp - abs(score) < 0:
-    #     unit.unit_strength -= 1
-    #     score -= unit.stats.w
-    # else:
-    #     if abs(score) < hp:
-    #         hp -= abs(score)
-    #     else:
-    #         unit.unit_strength -= abs(score)
     return unit.unit_strength, hp
 
 
 def combat_score_calculation(unit1, unit2, wounds1, wounds2, first_round):
-    combat_score1 = wounds1 + first_round + unit1.command['banner']
+    combat_score1 = wounds1 + first_round + unit1.command['banner'] + (
+                unit1.unit_strength // type_strength[unit1.troop_type]) // unit1.models_per_rank[unit1.troop_type]
     combat_score2 = wounds2 + unit2.command['banner']
     if unit1.unit_strength > unit2.unit_strength:
         combat_score1 += 1
@@ -105,17 +122,33 @@ def combat_score_calculation(unit1, unit2, wounds1, wounds2, first_round):
     return combat_score1 - combat_score2
 
 
-def unit_attacks(attacker, defender, hp_def):
+def unit_attacks(attacker, defender, hp_def, first_round, charger):
     a = ''
     print(f'Unit attacks: {attacker.unit_strength}->{defender.unit_strength}', end=' ')
-    if attacker.unit_strength <= 5:
+    if attacker.unit_strength <= models_per_rank[attacker.troop_type]:
         effective_attacks = attacker.stats.a * attacker.unit_strength + attacker.command['champion']
     else:
-        effective_attacks = attacker.stats.a * 5 + (attacker.unit_strength - 5) + attacker.command['champion']
+        if attacker.unit_strength > models_per_rank[attacker.troop_type] * 2:
+            effective_attacks = attacker.stats.a * models_per_rank[attacker.troop_type] + \
+                                models_per_rank[attacker.troop_type] + attacker.command['champion']
+            if 'Fight in extra ranks: 1' in attacker.rules:
+                tmp = attacker.unit_strength - models_per_rank[attacker.troop_type] * 2
+                if tmp >= models_per_rank[attacker.troop_type]:
+                    effective_attacks += models_per_rank[attacker.troop_type]
+                else:
+                    effective_attacks += tmp
+            else:
+                if 'Fight in extra ranks: 3' in attacker.rules:
+                    tmp = attacker.unit_strength - models_per_rank[attacker.troop_type] * 2
+                    if tmp // models_per_rank[attacker.troop_type] >= 3:
+                        effective_attacks += models_per_rank[attacker.troop_type] * 3
+                    else:
+                        effective_attacks += tmp
+        else:
+            effective_attacks = attacker.stats.a * models_per_rank[attacker.troop_type] + attacker.unit_strength - \
+                                models_per_rank[attacker.troop_type] + attacker.command['champion']
     for _ in range(effective_attacks):
-        result = model_attack(attacker.stats.ws, defender.stats.ws, attacker.stats.s, defender.stats.t,
-                                    defender.stats.save, defender.stats.ward,
-                                    attacker.rules, defender.rules)
+        result = model_attack(attacker, defender, first_round, charger)
         if result[0]:
             if hp_def - 1 == 0:
                 defender.unit_strength -= 1
@@ -127,40 +160,3 @@ def unit_attacks(attacker, defender, hp_def):
         a += str(result)
     print(a)
     return hp_def, defender.unit_strength
-
-# def combat(first, second, stats):
-#     hp = second.stats.w
-#     first_score, second_score = 0, 0
-#     for j in range(first.stats.a * first.unit_strength):
-#         result = attack(first.stats.ws, second.stats.ws, first.stats.s, second.stats.t, second.stats.save,
-#                         second.stats.ward)
-#         if result[0]:
-#             if hp - 1 == 0:
-#                 second.unit_strength -= 1
-#             else:
-#                 hp -= 1
-#             first_score += 1
-#             stats[0][4] += 1
-#         else:
-#             stats[0][result[1]] += 1
-#     if second.unit_strength:
-#         hp = first.stats.w
-#         for j in range(second.stats.a * second.unit_strength):
-#             result = attack(second.stats.ws, first.stats.ws, second.stats.s, first.stats.t, first.stats.save,
-#                             first.stats.ward)
-#             if result[0]:
-#                 if hp - 1 == 0:
-#                     first.unit_strength -= 1
-#                 else:
-#                     hp -= 1
-#                 second_score += 1
-#                 stats[1][4] += 1
-#             else:
-#                 stats[1][result[1]] += 1
-#         if first_score > second_score:
-#             stats[0][5] += 1
-#         else:
-#             if second_score > first_score:
-#                 stats[1][5] += 1
-#     else:
-#         stats[0][5] += 1
